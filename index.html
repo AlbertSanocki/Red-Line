@@ -202,10 +202,25 @@ ul{padding:0;list-style:none}
 .nav-links a:hover{background:rgba(255,255,255,.09);color:#fff}
 .nav-links a[aria-current="true"]{background:rgba(255,255,255,.11);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
 .nav-cta{flex:none}
-.nav-menu{display:none;width:44px;height:44px;margin-left:auto;border:0;border-radius:50%;background:rgba(255,255,255,.08);color:#fff;cursor:pointer;place-items:center}
-.nav-menu .i-close{display:none}
-.nav-menu[aria-expanded="true"] .i-open{display:none}
-.nav-menu[aria-expanded="true"] .i-close{display:block}
+.nav-menu{display:none;position:relative;width:44px;height:44px;margin-left:auto;border:0;border-radius:50%;background-color:rgba(255,255,255,.08);color:#fff;cursor:pointer;place-items:center;-webkit-tap-highlight-color:transparent;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,0),0 8px 22px -8px rgba(227,6,21,0);
+  transition:transform .35s var(--spring),background-color .35s var(--ease),box-shadow .35s var(--ease)}
+.nav-menu:active{transform:scale(.88)}
+.nav-menu[aria-expanded="true"]{background-color:rgba(222,6,20,.9);box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 8px 22px -8px var(--red-glow)}
+/* pierścień rozchodzący się przy otwarciu */
+.nav-menu::after{content:"";position:absolute;inset:0;border-radius:50%;border:1.5px solid var(--red-soft);opacity:0;pointer-events:none}
+.nav-menu[aria-expanded="true"]::after{animation:menu-ring .7s var(--ease)}
+@keyframes menu-ring{from{opacity:.9;transform:scale(1)}to{opacity:0;transform:scale(1.5)}}
+/* hamburger → X: otwieranie – kreski zjeżdżają do środka, potem obrót ze sprężyną;
+   zamykanie – odwrotnie, a kreski rozjeżdżają się ze sprężyną */
+.burger{position:relative;width:18px;height:18px}
+.burger span{position:absolute;left:1px;right:1px;top:50%;height:1.6px;margin-top:-.8px;border-radius:2px;background:currentColor;
+  transition:rotate .3s var(--ease),translate .35s var(--spring) .15s}
+.burger span:first-child{translate:0 -3.5px}
+.burger span:last-child{translate:0 3.5px}
+.nav-menu[aria-expanded="true"] .burger span{translate:0 0;transition:translate .2s var(--ease),rotate .5s var(--spring) .15s}
+.nav-menu[aria-expanded="true"] .burger span:first-child{rotate:45deg}
+.nav-menu[aria-expanded="true"] .burger span:last-child{rotate:-45deg}
 .menu-sheet{position:fixed;z-index:49;top:calc(var(--nav-top) + var(--nav-h) + 8px);left:0;right:0;margin:0 auto;width:calc(100% - 32px);max-width:520px;padding:8px;border-radius:26px;--g-tint:rgba(16,16,20,.74)}
 .menu-sheet[hidden]{display:none}
 .menu-sheet a{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-radius:18px;font-size:19px;font-weight:600;letter-spacing:-.01em;text-decoration:none}
@@ -561,8 +576,6 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
   <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></symbol>
   <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M7 17L17 7M8.5 7H17v8.5"/></symbol>
-  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 8h16M4 16h16"/></symbol>
-  <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
   <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/></symbol>
   <symbol id="i-camera" viewBox="0 0 24 24"><path d="M22 18.5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-10a2 2 0 0 1 2-2h3.5l2-3h5l2 3H20a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="3.8"/></symbol>
   <symbol id="i-car" viewBox="0 0 24 24"><path d="M4 16v-3.5l2-4.9A2 2 0 0 1 7.9 6.3h8.2A2 2 0 0 1 18 7.6l2 4.9V16a1 1 0 0 1-1 1h-1M4 16a1 1 0 0 0 1 1h1M10 17h4M4 12.5h16"/><circle cx="8" cy="17" r="1.8"/><circle cx="16" cy="17" r="1.8"/></symbol>
@@ -602,8 +615,7 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
     </ul>
     <a class="btn btn-red btn-sm nav-cta lg-refract" href="https://booksy.com/pl-pl/92055_red-line-myjnia-detailing_motoryzacja_8820_krakow" target="_blank" rel="noopener">Umów wizytę</a>
     <button class="nav-menu" type="button" aria-expanded="false" aria-controls="mobile-menu" aria-label="Otwórz menu">
-      <svg class="ico i-open" aria-hidden="true"><use href="#i-menu"/></svg>
-      <svg class="ico i-close" aria-hidden="true"><use href="#i-close"/></svg>
+      <span class="burger" aria-hidden="true"><span></span><span></span></span>
     </button>
   </nav>
   <div class="menu-sheet glass" id="mobile-menu" hidden>
