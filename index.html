@@ -403,12 +403,17 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 
 /* ---------- Cennik ---------- */
 .tabs-wrap{padding:6px;border-radius:999px;margin-bottom:18px}
-.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-inline:4px;border-radius:999px}
+.tabs{position:relative;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;scroll-snap-type:x proximity;scroll-padding-inline:4px;border-radius:999px}
 .tabs::-webkit-scrollbar{display:none}
-.tab{position:relative;flex:none;height:44px;padding:0 18px;border:0;border-radius:999px;background:none;font-size:15px;font-weight:600;color:var(--text-2);white-space:nowrap;cursor:pointer;scroll-snap-align:start;transition:color .25s,background-color .25s}
+.tab{position:relative;z-index:1;flex:none;height:44px;padding:0 18px;border:0;border-radius:999px;background:none;font-size:15px;font-weight:600;color:var(--text-2);white-space:nowrap;cursor:pointer;scroll-snap-align:start;transition:color .3s}
 .tab:hover{color:#fff}
-.tab[aria-selected="true"]{color:#fff;background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07));box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 4px 12px rgba(0,0,0,.35)}
-.tab[aria-selected="true"]::after{content:"";position:absolute;left:50%;bottom:5px;width:14px;height:2px;margin-left:-7px;border-radius:2px;background:var(--red);box-shadow:0 0 8px var(--red)}
+.tab[aria-selected="true"]{color:#fff}
+/* podświetlenie przesuwa się pod wybraną zakładkę jak w przełączniku rozmiaru; pozycję i szerokość ustawia JS
+   (bez JS podświetlona jest sama zakładka) */
+.tab-thumb{position:absolute;top:0;bottom:0;left:0;width:0;border-radius:999px;pointer-events:none;
+  transition:transform .55s var(--spring),width .55s var(--spring)}
+.tab-thumb,html:not(.js) .tab[aria-selected="true"]{background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.07));box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 4px 12px rgba(0,0,0,.35)}
+.tab-thumb::after,html:not(.js) .tab[aria-selected="true"]::after{content:"";position:absolute;left:50%;bottom:5px;width:14px;height:2px;margin-left:-7px;border-radius:2px;background:var(--red);box-shadow:0 0 8px var(--red)}
 .panel{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:32px;padding:30px 30px 30px 34px}
 .panel[hidden]{display:none}
 .panel-media{align-self:start}
@@ -826,6 +831,7 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 
       <div class="tabs-wrap glass">
         <div class="tabs" role="tablist" aria-label="Kategorie usług">
+          <span class="tab-thumb" aria-hidden="true"></span>
           <button class="tab" type="button" role="tab" id="t-myjnia" aria-controls="p-myjnia" aria-selected="true" tabindex="0">Myjnia</button>
           <button class="tab" type="button" role="tab" id="t-detailing" aria-controls="p-detailing" aria-selected="false" tabindex="-1">Detailing</button>
           <button class="tab" type="button" role="tab" id="t-polerowanie" aria-controls="p-polerowanie" aria-selected="false" tabindex="-1">Polerowanie lakieru</button>
@@ -1203,13 +1209,18 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
   });
 
   /* Zakładki cennika */
-  var tabs = Array.prototype.slice.call(d.querySelectorAll('[role="tab"]'));
+  var tabs = Array.prototype.slice.call(d.querySelectorAll('[role="tab"]')), tabThumb = d.querySelector('.tab-thumb');
+  function moveThumb(t) {
+    tabThumb.style.width = t.offsetWidth + 'px';
+    tabThumb.style.transform = 'translateX(' + t.offsetLeft + 'px)';
+  }
   function selectTab(t, focus) {
     tabs.forEach(function (x) {
       var on = x === t;
       x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1;
       d.getElementById(x.getAttribute('aria-controls')).hidden = !on;
     });
+    moveThumb(t);
     if (focus) t.focus();
     var bar = t.parentNode, l = t.offsetLeft - 8, r = l + t.offsetWidth + 16;
     if (l < bar.scrollLeft || r > bar.scrollLeft + bar.clientWidth) bar.scrollTo({ left: l, behavior: reduce ? 'auto' : 'smooth' });
@@ -1225,6 +1236,10 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
       if (n) { e.preventDefault(); selectTab(n, true); }
     });
   });
+  /* pozycja startowa podświetlenia bez animacji */
+  tabThumb.style.transition = 'none';
+  moveThumb(d.querySelector('[role="tab"][aria-selected="true"]'));
+  void tabThumb.offsetWidth; tabThumb.style.transition = '';
 
   /* Galeria: przyciski przewijania */
   var track = d.querySelector('.g-track');
