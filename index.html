@@ -144,7 +144,8 @@ h1,h2,h3,h4,p,ul,ol,figure,blockquote,dl,dd{margin:0}
 ul{padding:0;list-style:none}
 .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
 .skip{position:fixed;left:16px;top:-60px;z-index:100;padding:12px 18px;border-radius:999px;background:#fff;color:#000;font-weight:600;text-decoration:none;transition:top .2s}
-.skip:focus{top:16px}
+.skip:focus-visible{top:16px}
+@supports not selector(:focus-visible){.skip:focus{top:16px}}
 :focus-visible{outline:2px solid #fff;outline-offset:3px;border-radius:12px}
 .sprite{position:absolute;width:0;height:0;overflow:hidden}
 .ico{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
@@ -530,6 +531,9 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 .f-links a{font-size:15.5px;text-decoration:none;color:rgba(245,245,247,.9)}
 .f-links a:hover{color:#fff;text-decoration:underline;text-underline-offset:3px}
 .f-bottom{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;margin-top:48px;padding-top:22px;border-top:1px solid var(--hair);font-size:14px;color:var(--text-2)}
+.f-legal{display:flex;flex-wrap:wrap;gap:4px 18px}
+.f-legal a,.f-legal button{padding:0;border:0;background:none;font:inherit;color:inherit;text-decoration:none;cursor:pointer}
+.f-legal a:hover,.f-legal button:hover{color:#fff;text-decoration:underline;text-underline-offset:3px}
 @media (max-width:760px){.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1 / -1}}
 
 /* ---------- Dolny pasek (mobile) ---------- */
@@ -546,6 +550,89 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 .chat-fab:active{transform:scale(.94)}
 .chat-fab .ico{width:24px;height:24px}
 
+/* ---------- Zgoda na cookies ---------- */
+/* okienko: na komputerze w prawym dolnym rogu (nie zasłania przycisków w hero), na telefonie na całą szerokość;
+   „Odrzucam” i „Akceptuję” mają ten sam wygląd */
+.cc{position:fixed;z-index:70;right:24px;bottom:24px;width:min(540px,calc(100% - 48px));max-height:calc(100vh - 48px);max-height:calc(100dvh - 48px);overflow:auto;overscroll-behavior:contain;padding:22px 22px 18px;
+  opacity:0;transform:translateY(16px);transition:opacity .45s var(--ease),transform .6s var(--spring)}
+/* --g-fill jest liczone na :root, więc ciemniejszy odcień szkła trzeba podać razem z nim */
+.cc,dialog.cc-modal{--g-tint:rgba(16,16,20,.86);--g-fill:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.02) 55%),var(--g-tint)}
+.cc.is-in{opacity:1;transform:none}
+.cc[hidden],.cc-svc[hidden],.map .ph[hidden],.map-off[hidden]{display:none}
+.cc h2,.cc-modal h2{font-size:19px;line-height:1.3;letter-spacing:-.015em}
+.cc p{margin-top:8px;font-size:15px;line-height:1.5;color:var(--text-2);text-wrap:pretty}
+.cc a,.cc-modal a{color:#fff;text-underline-offset:3px}
+.cc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.cc-actions .btn{flex:1 1 130px}
+.cc-more{background:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.18)}
+.cc-more:hover{background:rgba(255,255,255,.08)}
+/* gdy okienko jest otwarte, fokus i przewijanie omijają je (JS liczy --cc-pad),
+   a pływające przyciski strony, które i tak by zasłaniało, chowają się */
+.cc-open{scroll-padding-bottom:var(--cc-pad,0px)}
+.cc-open body{padding-bottom:var(--cc-pad,0px)}
+.cc-shown .chat-fab{visibility:hidden}
+.cc-open .menu-sheet{z-index:71}
+/* panel ustawień: natywny <dialog> (pułapka fokusu, Esc, tło nieaktywne); przewija się tylko lista usług */
+dialog.cc-modal{position:fixed;inset:0;margin:auto;width:min(620px,calc(100% - 32px));max-width:none;height:fit-content;max-height:min(760px,calc(100% - 32px));padding:0;border:0;color:var(--text);overflow:hidden}
+dialog.cc-modal[open]{display:flex;flex-direction:column}
+.cc-modal::backdrop{background:rgba(5,5,7,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+.cc-head,.cc-body,.cc-foot{position:relative;z-index:2}
+.cc-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 20px 12px 26px}
+.cc-head .icon-btn{width:44px;height:44px;flex:none}
+.cc-body{min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 26px 18px}
+.cc-body:focus-visible{outline-offset:-3px}
+.cc-modal .cc-foot{margin:0;padding:16px 26px 22px;border-top:1px solid var(--hair)}
+.cc-lead{font-size:15px;line-height:1.5;color:var(--text-2)}
+.cc-svc{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:18px;margin-top:16px;padding-top:16px;border-top:1px solid var(--hair)}
+.cc-svc h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.cc-svc p{margin-top:4px;font-size:14px;line-height:1.5;color:var(--text-2)}
+.cc-switch{-webkit-appearance:none;appearance:none;position:relative;flex:none;width:50px;height:30px;margin:0;border-radius:999px;background:rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.45),inset 0 0 0 1.5px rgba(255,255,255,.5);cursor:pointer;transition:background-color .3s var(--ease),box-shadow .3s var(--ease)}
+.cc-switch::before{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.45);transition:transform .45s var(--spring)}
+.cc-switch:checked{background:var(--red);box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.35),0 6px 16px -6px var(--red-glow)}
+.cc-switch:checked::before{transform:translateX(20px)}
+.cc-switch:disabled{cursor:default;opacity:.5}
+.cc-switch:focus-visible{border-radius:999px}
+/* zastępstwo mapy do czasu zgody: w zwykłym układzie, więc ramka mapy rośnie razem z tekstem */
+.map{display:flex;flex-direction:column}
+.map .map-ph{position:relative;inset:auto;width:auto;height:auto;flex:1 0 auto;padding:24px 24px 92px;text-align:center}
+.map-ph::before{content:none}
+.map-ph .ico{width:28px;height:28px;color:var(--red-soft)}
+.map-ph-title{font-size:18px;font-weight:600;letter-spacing:-.01em;color:#fff}
+.map-ph p:not(.map-ph-title){max-width:420px;font-size:14.5px;line-height:1.5;color:var(--text-2)}
+.map-ph-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:6px}
+.map-ph .btn{flex:none}
+.map-off{position:absolute;z-index:3;top:22px;right:22px}
+html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
+@media (max-width:899px){
+  .cc{left:16px;right:16px;bottom:calc(12px + env(safe-area-inset-bottom));width:auto;max-height:calc(100vh - 24px - env(safe-area-inset-bottom));max-height:calc(100dvh - 24px - env(safe-area-inset-bottom));padding:20px 18px 16px}
+  .cc-open .tabbar{visibility:hidden}
+}
+@media (max-width:600px){
+  .cc{padding:18px 16px 14px}
+  .cc h2{font-size:17px}
+  .cc p{margin-top:6px;font-size:14px}
+  .cc .cc-actions{margin-top:14px}
+  .cc .cc-actions .btn{flex:1 1 auto;padding:0 14px}
+  .cc-head{padding:16px 14px 10px 18px}
+  .cc-body{padding:0 18px 14px}
+  .cc-modal .cc-foot{padding:14px 18px 18px}
+  .map .map-ph{padding:18px 18px 84px}
+}
+/* niskie okna (telefon poziomo, duże powiększenie): okienko na początku strony, w zwykłym układzie */
+@media (max-height:480px){
+  .cc{position:relative;z-index:auto;left:auto;right:auto;bottom:auto;width:auto;max-height:none;overflow:visible;margin:calc(var(--nav-top) + var(--nav-h) + 12px) 16px 0;transform:none}
+}
+@media (forced-colors:active){
+  .cc-switch{border:2px solid ButtonText}
+  .cc-switch::before{top:2px;left:2px;background:ButtonText}
+  .cc-switch:checked{background:Highlight}
+  .cc-switch:checked::before{background:HighlightText}
+  .cc-switch:disabled{border-color:GrayText}
+  .cc-switch:disabled::before{background:GrayText}
+  .cc .btn,.cc-modal .btn,.map-ph .btn,.map-off{border:1px solid ButtonText}
+}
+
 /* ---------- Pojawianie się ---------- */
 .js .reveal{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease);transition-delay:calc(var(--d,0) * 70ms)}
 .js .reveal.in{opacity:1;transform:none}
@@ -558,6 +645,69 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 </style>
 </head>
 <body>
+<!-- ============ Zgoda na cookies ============
+     Usługi zewnętrzne (mapa Google, system rezerwacji, czat) ładują się dopiero po zgodzie odwiedzającego:
+     ich elementy mają data-consent="nazwa-usługi" i adres w data-src zamiast src (skrypty: type="text/plain";
+     pozostałe elementy dodatkowo hidden – pokażą się po zgodzie). Listę usług tworzą widoczne wiersze .cc-svc
+     w panelu „Ustawienia cookies” poniżej. Wybór zapisuje się w localStorage na 12 miesięcy; gdy dojdzie nowa
+     usługa, okienko zapyta tylko o nią. Po zmianie dostawcy albo celu istniejącej usługi zwiększ CC_VERSION
+     w skrypcie na dole strony – wszyscy zostaną zapytani ponownie. -->
+<section class="cc glass" id="cc-banner" aria-labelledby="cc-title" aria-describedby="cc-desc" hidden>
+  <h2 id="cc-title">Pliki cookies</h2>
+  <p id="cc-desc">Ta strona korzysta z plików cookies. Używają ich usługi zewnętrzne (<span data-cc-names>mapa Google</span>), które włączamy dopiero po Twojej zgodzie. Ich dostawcy otrzymują wtedy m.in. Twój adres IP i mogą używać cookies także we własnych celach, np. reklamowych. Zgodę możesz w każdej chwili wycofać w „Ustawieniach cookies” na dole strony. <a href="polityka-prywatnosci.html">Polityka prywatności</a></p>
+  <div class="cc-actions">
+    <button class="btn btn-glass btn-sm" type="button" data-cc="reject">Odrzucam</button>
+    <button class="btn btn-glass btn-sm" type="button" data-cc="accept">Akceptuję</button>
+    <button class="btn btn-sm cc-more" type="button" data-cc="settings">Ustawienia</button>
+  </div>
+</section>
+
+<dialog class="cc-modal glass" id="cc-settings" aria-labelledby="cc-set-title" aria-describedby="cc-set-lead">
+  <div class="cc-head">
+    <h2 id="cc-set-title">Ustawienia cookies</h2>
+    <button class="icon-btn btn-glass" type="button" data-cc="close" aria-label="Zamknij"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="cc-body">
+    <!-- Po włączeniu rezerwacji lub czatu dopisz tu, co działa bez zgody (np. „rezerwacja otworzy się w nowej karcie, a czat pozostanie wyłączony”). -->
+    <p class="cc-lead" id="cc-set-lead">Wybierz, które usługi zewnętrzne możemy włączać. Bez zgody reszta strony działa normalnie, a mapę włączysz też później przyciskiem w jej miejscu. Szczegóły: <a href="polityka-prywatnosci.html">Polityka prywatności</a>.</p>
+    <div class="cc-svc">
+      <div>
+        <h3 id="cc-n-base">Niezbędne</h3>
+        <p id="cc-d-base">Zapisujemy Twój wybór w pamięci przeglądarki (localStorage) na 12 miesięcy, żeby nie pytać ponownie. Bez plików cookies; ten zapis nie trafia na nasz serwer.</p>
+      </div>
+      <input class="cc-switch" type="checkbox" role="switch" checked disabled aria-labelledby="cc-n-base" aria-describedby="cc-d-base">
+    </div>
+    <div class="cc-svc" data-service="mapa" data-label="mapa Google">
+      <div>
+        <h3 id="cc-n-mapa">Mapa Google</h3>
+        <p id="cc-d-mapa">Mapa dojazdu w sekcji Kontakt. Dostawca: Google Ireland Limited. Po włączeniu Google otrzymuje m.in. Twój adres IP i adres naszej strony, może odczytywać zapisane w przeglądarce pliki cookies Google (np. NID, ważny do 6 miesięcy od ostatniego użycia) i zapisywać nowe. Google może je wykorzystywać także we własnych celach, m.in. do zapamiętywania ustawień, statystyk i reklam. <a href="https://policies.google.com/privacy?hl=pl" target="_blank" rel="noopener">Polityka prywatności Google</a> · <a href="https://policies.google.com/technologies/partner-sites?hl=pl" target="_blank" rel="noopener">Jak Google wykorzystuje dane z witryn</a></p>
+      </div>
+      <input class="cc-switch" type="checkbox" role="switch" data-consent-toggle="mapa" aria-labelledby="cc-n-mapa" aria-describedby="cc-d-mapa">
+    </div>
+    <!-- SYSTEM REZERWACJI: jak włączyć – lista kontrolna na dole strony. Uzupełnij pola w nawiasach. -->
+    <div class="cc-svc" data-service="rezerwacje" data-label="system rezerwacji" hidden>
+      <div>
+        <h3 id="cc-n-rez">System rezerwacji</h3>
+        <p id="cc-d-rez">Rezerwacja wizyty w okienku na tej stronie. Dostawca: <span class="todo">[pełna nazwa firmy]</span>. Po włączeniu dostawca otrzymuje m.in. Twój adres IP i może zapisywać oraz odczytywać pliki cookies (<span class="todo">[nazwy, okres ważności]</span>) w celu <span class="todo">[cele z polityki dostawcy, np. obsługi rezerwacji i statystyk]</span>. Bez zgody przyciski rezerwacji (np. „Umów wizytę”) otwierają rezerwację w nowej karcie, na stronie <span class="todo">[nazwa serwisu]</span>. <a class="todo" href="#">[Polityka prywatności dostawcy]</a></p>
+      </div>
+      <input class="cc-switch" type="checkbox" role="switch" data-consent-toggle="rezerwacje" aria-labelledby="cc-n-rez" aria-describedby="cc-d-rez">
+    </div>
+    <!-- CZAT: jak włączyć – lista kontrolna na dole strony. Uzupełnij pola w nawiasach. -->
+    <div class="cc-svc" data-service="czat" data-label="czat" hidden>
+      <div>
+        <h3 id="cc-n-czat">Czat</h3>
+        <p id="cc-d-czat">Rozmowa z nami w okienku czatu. Dostawca: <span class="todo">[pełna nazwa firmy]</span>. Po włączeniu dostawca otrzymuje m.in. Twój adres IP i może zapisywać oraz odczytywać pliki cookies (<span class="todo">[nazwy, okres ważności]</span>) w celu <span class="todo">[cele]</span>. Bez zgody czat jest wyłączony – zadzwoń: +48 889 975 988. <a class="todo" href="#">[Polityka prywatności dostawcy]</a></p>
+      </div>
+      <input class="cc-switch" type="checkbox" role="switch" data-consent-toggle="czat" aria-labelledby="cc-n-czat" aria-describedby="cc-d-czat">
+    </div>
+  </div>
+  <div class="cc-actions cc-foot">
+    <button class="btn btn-glass btn-sm" type="button" data-cc="reject-all">Odrzucam wszystkie</button>
+    <button class="btn btn-glass btn-sm" type="button" data-cc="accept-all">Akceptuję wszystkie</button>
+    <button class="btn btn-red btn-sm" type="button" data-cc="save">Zapisz wybór</button>
+  </div>
+</dialog>
+
 <a class="skip" href="#main">Przejdź do treści</a>
 
 <!-- Ikony (sprite) i filtr refrakcji Liquid Glass -->
@@ -603,6 +753,7 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
   <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.6a11 11 0 0 1 14 0M1.5 9a16 16 0 0 1 21 0M8.5 16.1a6 6 0 0 1 7 0M12 20h.01"/></symbol>
   <symbol id="i-gift" viewBox="0 0 24 24"><path d="M20 12v9.5H4V12M2.5 7h19v5h-19zM12 21.5V7M12 7H7.8a2.3 2.3 0 0 1 0-4.6C11 2.4 12 7 12 7zM12 7h4.2a2.3 2.3 0 0 0 0-4.6C13 2.4 12 7 12 7z"/></symbol>
   <symbol id="i-users" viewBox="0 0 24 24"><path d="M16.5 21v-2a4 4 0 0 0-4-4h-6a4 4 0 0 0-4 4v2"/><circle cx="9.5" cy="7.5" r="4"/><path d="M21.5 21v-2a4 4 0 0 0-3-3.9M15.5 3.6a4 4 0 0 1 0 7.8"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
 </svg>
 
 <!-- ============ Nawigacja ============ -->
@@ -1079,8 +1230,20 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
           <a class="btn btn-glass glass lg-refract" href="tel:+48889975988"><svg class="ico" aria-hidden="true"><use href="#i-phone"/></svg>Zadzwoń</a>
         </div>
       </div>
-      <div class="map glass reveal" style="--d:1">
-        <iframe title="Mapa: RED LINE, ul. Aleksandra Fredry 36, 30-605 Kraków" src="https://maps.google.com/maps?q=ul.%20Aleksandra%20Fredry%2036%2C%2030-605%20Krak%C3%B3w&amp;z=16&amp;hl=pl&amp;output=embed" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+      <div class="map glass reveal" style="--d:1" tabindex="-1">
+        <!-- Mapa ładuje się dopiero po zgodzie na cookies (data-consent="mapa"): adres jest w data-src, nie w src. -->
+        <iframe title="Mapa: RED LINE, ul. Aleksandra Fredry 36, 30-605 Kraków" data-consent="mapa" data-src="https://maps.google.com/maps?q=ul.%20Aleksandra%20Fredry%2036%2C%2030-605%20Krak%C3%B3w&amp;z=16&amp;hl=pl&amp;output=embed" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen hidden></iframe>
+        <div class="ph map-ph" data-consent-ph="mapa">
+          <svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>
+          <p class="map-ph-title">Mapa Google</p>
+          <p class="map-ph-js">Po kliknięciu Google otrzyma Twój adres IP i może używać plików cookies, także do reklam. Zgodę zapamiętamy na 12 miesięcy; możesz ją wycofać w każdej chwili.</p>
+          <div class="map-ph-actions map-ph-js">
+            <button class="btn btn-glass btn-sm" type="button" data-consent-grant="mapa">Pokaż mapę</button>
+            <button class="btn btn-sm cc-more" type="button" data-cc="settings">Szczegóły</button>
+          </div>
+          <noscript><p>Mapa wymaga włączonego JavaScriptu. Dojazd wyznaczysz przyciskiem „Wyznacz trasę”.</p></noscript>
+        </div>
+        <button class="btn btn-glass glass btn-sm map-off" type="button" data-consent="mapa" data-consent-revoke="mapa" hidden>Wyłącz mapę</button>
         <a class="btn btn-glass glass map-cta" href="https://www.google.com/maps/dir/?api=1&amp;destination=ul.%20Aleksandra%20Fredry%2036%2C%2030-605%20Krak%C3%B3w" target="_blank" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-route"/></svg>Wyznacz trasę</a>
       </div>
     </div>
@@ -1121,6 +1284,8 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
     </div>
     <div class="f-bottom">
       <p>© 2026 Red Line s.c.</p>
+      <!-- POLITYKA PRYWATNOŚCI: utwórz stronę polityka-prywatnosci.html (link jest też w okienku cookies). -->
+      <p class="f-legal"><a href="polityka-prywatnosci.html">Polityka prywatności</a><button type="button" data-cc="settings">Ustawienia cookies</button></p>
       <p>RED LINE | Myjnia &amp; Detailing, Kraków</p>
     </div>
   </div>
@@ -1133,16 +1298,38 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 </nav>
 
 <!-- =====================================================================
+     SYSTEM REZERWACJI – jak włączyć (czat tak samo, z data-consent="czat"):
+     1. Wklej tutaj skrypt dostawcy tak, żeby ładował się dopiero po zgodzie na cookies: w każdym
+        jego tagu <script> zamień src na data-src i dodaj type="text/plain" data-consent="rezerwacje", np.:
+        <script type="text/plain" data-consent="rezerwacje" data-src="https://dostawca-rezerwacji.example/widget.js"></script>
+        <script type="text/plain" data-consent="rezerwacje">/* kod startowy dostawcy */</script>
+        Kolejność zostaje zachowana: kod startowy uruchomi się po wczytaniu biblioteki. Iframe dostawcy
+        przerób tak samo (data-src, data-consent) i dodaj mu atrybut hidden.
+        Nie wklejaj kodu, który używa document.write: po kliknięciu zgody wyczyściłby całą stronę
+        (poproś dostawcę o wersję asynchroniczną albo iframe).
+     2. W panelu „Ustawienia cookies” (początek <body>) usuń „hidden” z wiersza data-service="rezerwacje"
+        i uzupełnij pola w nawiasach: pełną nazwę firmy, cele, nazwy i okres ważności cookies
+        (z listy cookies dostawcy) oraz link do jego polityki prywatności.
+     3. Dopisz we wstępie panelu, co działa bez zgody, a usługę dodaj do polityki prywatności.
+     4. Sprawdź w przeglądarce (DevTools → Network), że przed zgodą nic od dostawcy się nie ładuje.
+     Bez zgody przyciski „Umów wizytę” zostają zwykłymi linkami, więc rezerwacja działa zawsze.
+     ===================================================================== -->
+
+<!-- =====================================================================
      WIDGET CZATU (CRM)
-     Tutaj wklej skrypt widgetu, np.:
-     <script src="https://TWOJ-CRM.pl/widget.js" data-position="bottom-right" async></script>
+     Tutaj wklej skrypt widgetu według listy kontrolnej powyżej, z data-consent="czat", np.:
+     <script type="text/plain" data-consent="czat" data-src="https://dostawca-czatu.example/widget.js" data-position="bottom-right" async></script>
+     Potem usuń „hidden” z wiersza data-service="czat" w panelu „Ustawienia cookies” i uzupełnij go.
 
      Przycisk #chat-launcher to szklany placeholder 56 px w prawym dolnym rogu.
      Widget może:
        a) podpiąć się pod ten przycisk (document.getElementById('chat-launcher')), albo
        b) ukryć go i wyrenderować własny w tym samym miejscu, używając zmiennych CSS
           --chat-right i --chat-bottom z :root (na mobile uwzględniają dolny pasek).
-     Kliknięcie placeholdera wysyła na window zdarzenie 'redline:chat-open'.
+     Kliknięcie placeholdera wysyła na window zdarzenie 'redline:chat-open', a gdy czat
+     jest na liście usług bez zgody, otwiera ustawienia cookies; po zgodzie wydanej w tym
+     panelu zdarzenie pójdzie, gdy skrypty czatu się wczytają.
+     Po każdym ustaleniu zgody na window idzie zdarzenie 'redline:consent' (detail: wybór).
      ===================================================================== -->
 <button class="chat-fab glass lg-refract" id="chat-launcher" type="button" aria-label="Otwórz czat">
   <svg class="ico" aria-hidden="true"><use href="#i-chat"/></svg>
@@ -1293,8 +1480,181 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
     items.forEach(function (el) { el.classList.add('in'); });
   }
 
-  /* Placeholder czatu: widget CRM może nasłuchiwać na 'redline:chat-open' */
+  /* Zgoda na cookies: elementy usług zewnętrznych (data-consent="id", adres w data-src) ładują się
+     dopiero po zgodzie. Usługi to widoczne wiersze .cc-svc[data-service]; wybór trzymamy w localStorage. */
+  var CC_KEY = 'redline-consent', CC_MAX_AGE = 365 * 864e5; /* 12 miesięcy */
+  var CC_VERSION = 1; /* zwiększ po zmianie dostawcy lub celu usługi: wszyscy zostaną zapytani ponownie */
+  var ccBanner = d.getElementById('cc-banner'), ccDialog = d.getElementById('cc-settings');
+  var ccServices = Array.prototype.slice.call(d.querySelectorAll('.cc-svc[data-service]'))
+    .filter(function (el) { return !el.hidden; })
+    .map(function (el) { return el.getAttribute('data-service'); });
+  var ccLoaded = {}, ccScripted = {}, ccChoice = {}, ccChatPending = false;
+  try {
+    var ccRec = JSON.parse(localStorage.getItem(CC_KEY)), ccAge = ccRec && Date.now() - ccRec.t;
+    if (ccRec && ccRec.v === CC_VERSION && typeof ccRec.s === 'object' && ccRec.s && ccAge >= 0 && ccAge < CC_MAX_AGE) ccChoice = ccRec.s;
+  } catch (e) {}
+  function ccUndecided() {
+    return ccServices.filter(function (id) { return !(id in ccChoice); });
+  }
+  function ccWrite(s) {
+    ccChoice = s;
+    try { localStorage.setItem(CC_KEY, JSON.stringify({ v: CC_VERSION, t: Date.now(), s: s })); } catch (e) {}
+  }
+  /* elementy usługi wczytujemy po kolei: skrypt z src (bez async) wstrzymuje następne, jak przy zwykłym
+     wczytywaniu strony; done() rusza, gdy wczytają się wszystkie skrypty usługi */
+  function ccLoad(id, done) {
+    if (ccLoaded[id]) return;
+    ccLoaded[id] = true;
+    var list = Array.prototype.slice.call(d.querySelectorAll('[data-consent="' + id + '"]')), left = 1;
+    function fin() { if (!--left && done) done(); }
+    d.querySelectorAll('[data-consent-ph="' + id + '"]').forEach(function (el) { el.hidden = true; });
+    (function next() {
+      var el = list.shift();
+      if (!el) return fin();
+      var src = el.getAttribute('data-src');
+      if (el.tagName !== 'SCRIPT') {
+        if (src) el.src = src;
+        el.hidden = false;
+        return next();
+      }
+      var s = d.createElement('script'), wait = !!src && !el.hasAttribute('async');
+      Array.prototype.forEach.call(el.attributes, function (a) {
+        if (!/^(type|data-src|data-consent)$/.test(a.name)) s.setAttribute(a.name, a.value);
+      });
+      if (el.nonce) s.nonce = el.nonce;
+      if (src) {
+        left++;
+        s.addEventListener('load', fin);
+        s.addEventListener('error', fin);
+        if (wait) {
+          s.addEventListener('load', next);
+          s.addEventListener('error', next);
+        }
+        s.src = src;
+      } else s.text = el.text;
+      ccScripted[id] = true;
+      el.parentNode.replaceChild(s, el);
+      if (!wait) next();
+    })();
+  }
+  /* wycofanie zgody: iframe i inne elementy wyłączamy na miejscu (wczytany skrypt wymaga przeładowania strony) */
+  function ccUnload(id) {
+    if (!ccLoaded[id]) return;
+    ccLoaded[id] = false;
+    d.querySelectorAll('[data-consent="' + id + '"]').forEach(function (el) {
+      if (el.hasAttribute('data-src')) el.removeAttribute('src');
+      el.hidden = true;
+    });
+    d.querySelectorAll('[data-consent-ph="' + id + '"]').forEach(function (el) { el.hidden = false; });
+  }
+  function ccApply(openChat) {
+    ccServices.forEach(function (id) {
+      if (!ccChoice[id]) return ccUnload(id);
+      ccLoad(id, openChat && id === 'czat' ? function () { window.dispatchEvent(new CustomEvent('redline:chat-open')); } : null);
+    });
+    window.dispatchEvent(new CustomEvent('redline:consent', { detail: ccChoice }));
+  }
+  /* póki okienko pływa nad stroną, rezerwujemy pod nim miejsce: fokus i przewijanie go omijają */
+  function ccLayout() {
+    var cs = getComputedStyle(ccBanner), fixed = !ccBanner.hidden && cs.position === 'fixed';
+    root.classList.toggle('cc-shown', !ccBanner.hidden);
+    root.classList.toggle('cc-open', fixed);
+    root.style.setProperty('--cc-pad', fixed ? ccBanner.offsetHeight + parseFloat(cs.bottom) + 8 + 'px' : '0px');
+  }
+  function ccShow() {
+    var names = ccUndecided().map(function (id) {
+      return d.querySelector('.cc-svc[data-service="' + id + '"]').getAttribute('data-label');
+    }).join(', ');
+    d.querySelectorAll('[data-cc-names]').forEach(function (el) { el.textContent = names; });
+    if (!ccBanner.hidden) return;
+    ccBanner.hidden = false;
+    void ccBanner.offsetWidth;
+    ccBanner.classList.add('is-in');
+    ccLayout();
+  }
+  function ccHide() {
+    if (ccBanner.hidden) return;
+    var focused = ccBanner.contains(d.activeElement), skip = d.querySelector('.skip');
+    ccBanner.hidden = true;
+    ccBanner.classList.remove('is-in');
+    ccLayout();
+    /* fokus z ukrytego okienka przechodzi do następnego elementu, linku „Przejdź do treści”
+       (widać go tylko przy obsłudze klawiaturą) */
+    if (focused && skip) skip.focus({ preventScroll: true });
+  }
+  /* przycisk z fokusem właśnie zniknął (zastępstwo mapy, „Wyłącz mapę”): fokus zostaje przy mapie */
+  function ccRefocus(a) {
+    var box = a && a.closest('[hidden]') && a.closest('.map');
+    if (!box) return;
+    var grant = box.querySelector('[data-consent-grant]');
+    (grant && !grant.closest('[hidden]') ? grant : box).focus();
+  }
+  function ccSave(s) {
+    var reload = ccServices.some(function (id) { return !s[id] && ccLoaded[id] && ccScripted[id]; });
+    var openChat = ccChatPending && s.czat;
+    ccChatPending = false;
+    ccWrite(s);
+    if (ccDialog.open) ccDialog.close();
+    /* element z fokusem trzeba zapamiętać, zanim przeglądarka zdejmie fokus z ukrywanych przycisków */
+    var a = d.activeElement;
+    if (ccUndecided().length) ccShow(); else ccHide();
+    if (reload) return location.reload();
+    ccApply(openChat);
+    ccRefocus(a);
+  }
+  /* okienko decyduje tylko o usługach bez decyzji; przyciski „… wszystkie” w panelu – o wszystkich */
+  function ccAll(v, onlyNew) {
+    var s = {};
+    ccServices.forEach(function (id) { s[id] = onlyNew && id in ccChoice ? ccChoice[id] : v; });
+    return s;
+  }
+  function ccOpen(focusId) {
+    ccChatPending = focusId === 'czat';
+    d.querySelectorAll('[data-consent-toggle]').forEach(function (t) { t.checked = !!ccChoice[t.getAttribute('data-consent-toggle')]; });
+    ccDialog.querySelector('.cc-body').scrollTop = 0;
+    ccDialog.showModal();
+    var t = focusId && ccDialog.querySelector('[data-consent-toggle="' + focusId + '"]');
+    if (t) t.focus();
+  }
+  d.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-cc],[data-consent-grant],[data-consent-revoke]');
+    if (!b) return;
+    var act = b.getAttribute('data-cc'), s = {}, id;
+    if (act === 'accept' || act === 'reject') ccSave(ccAll(act === 'accept', true));
+    else if (act === 'accept-all' || act === 'reject-all') ccSave(ccAll(act === 'accept-all'));
+    else if (act === 'save') {
+      ccServices.forEach(function (k) {
+        var t = ccDialog.querySelector('[data-consent-toggle="' + k + '"]');
+        s[k] = !!(t && t.checked);
+      });
+      ccSave(s);
+    }
+    else if (act === 'settings') ccOpen();
+    else if (act === 'close') ccDialog.close();
+    else {
+      /* „Pokaż mapę” / „Wyłącz mapę”: zgoda na jedną usługę albo jej wycofanie, wprost przy niej */
+      id = b.getAttribute('data-consent-grant') || b.getAttribute('data-consent-revoke');
+      Object.keys(ccChoice).forEach(function (k) { s[k] = ccChoice[k]; });
+      s[id] = b.hasAttribute('data-consent-grant');
+      ccSave(s);
+    }
+  });
+  /* kliknięcie w tło zamyka panel bez zapisu (ale nie przeciągnięcie zaczęte w środku panelu) */
+  var ccDown = null;
+  ccDialog.addEventListener('pointerdown', function (e) { ccDown = e.target; });
+  ccDialog.addEventListener('click', function (e) { if (e.target === ccDialog && ccDown === ccDialog) ccDialog.close(); });
+  /* Esc zamyka sam panel, a nie także otwarte pod nim menu */
+  ccDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') e.stopPropagation(); });
+  window.addEventListener('resize', ccLayout);
+  if (window.ResizeObserver) new ResizeObserver(ccLayout).observe(ccBanner);
+  if (ccUndecided().length) ccShow();
+  /* tagi usług wklejone niżej w kodzie (np. na samym końcu strony) muszą już istnieć */
+  if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', function () { ccApply(); }); else ccApply();
+
+  /* Placeholder czatu: widget CRM może nasłuchiwać na 'redline:chat-open'.
+     Gdy czat jest na liście usług, a nie ma na niego zgody, otwieramy ustawienia cookies przy przełączniku czatu. */
   d.getElementById('chat-launcher').addEventListener('click', function () {
+    if (ccServices.indexOf('czat') > -1 && !ccChoice.czat) { ccOpen('czat'); return; }
     window.dispatchEvent(new CustomEvent('redline:chat-open'));
   });
 })();
