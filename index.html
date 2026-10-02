@@ -188,6 +188,16 @@ ul{padding:0;list-style:none}
 .btn-sm{--h:44px;padding:0 20px;font-size:15px}
 .btn-block{width:100%}
 
+/* ---------- Lżejsze szkło na urządzeniach dotykowych ----------
+   Rozmycie tła przeliczane w każdej klatce przewijania mocno obciąża GPU słabszych telefonów. Elementy, które
+   przewijają się z treścią, dostają ciemniejsze tło zamiast rozmycia (na ciemnej stronie wyglądają prawie tak samo);
+   rozmyte zostają tylko elementy przyklejone do ekranu. Refrakcję na ekranach dotykowych wyłącza JS. */
+@media (max-width:899px),(hover:none) and (pointer:coarse){
+  .glass:not(.nav):not(.tabbar):not(.chat-fab):not(.menu-sheet):not(.size-inner):not(.cc):not(.cc-modal){-webkit-backdrop-filter:none;backdrop-filter:none;
+    --g-fill:linear-gradient(180deg,rgba(255,255,255,.085),rgba(255,255,255,.02) 55%),rgba(18,18,22,.8)}
+  .btn-red{-webkit-backdrop-filter:none;backdrop-filter:none}
+}
+
 /* ---------- Nawigacja ---------- */
 /* Elementy szklane, które pływają, same są position: fixed/sticky (nie ich rodzic):
    inaczej Chromium nie rozmywa treści pod nimi. */
@@ -1381,11 +1391,13 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   root.classList.add('js');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Refrakcja: backdrop-filter z url() działa w przeglądarkach opartych na Chromium */
+  /* Refrakcja: backdrop-filter z url() działa w przeglądarkach opartych na Chromium.
+     Tylko przy myszce: na telefonach to najdroższy efekt przy przewijaniu, a na małych przyciskach prawie go nie widać */
   var uad = navigator.userAgentData;
   var chromium = uad && uad.brands ? uad.brands.some(function (b) { return /Chromium/i.test(b.brand); }) : /\bChrome\/\d+/.test(navigator.userAgent);
   var lowTransparency = window.matchMedia('(prefers-reduced-transparency: reduce)').matches;
-  if (chromium && !lowTransparency) root.classList.add('lg-refraction');
+  var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  if (chromium && !lowTransparency && finePointer) root.classList.add('lg-refraction');
 
   /* Nawigacja zwęża się przy przewijaniu */
   var navWrap = d.querySelector('.site-header'), ticking = false;
