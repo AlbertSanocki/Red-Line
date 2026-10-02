@@ -159,7 +159,8 @@ ul{padding:0;list-style:none}
 /* krawędź: cienka, jaśniejsza u góry */
 .glass::before{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;padding:1px;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.44),rgba(255,255,255,.12) 26%,rgba(255,255,255,.04) 62%,rgba(255,255,255,.14));
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude}
 /* refleks światła podążający za kursorem */
 .glass::after{content:"";position:absolute;inset:0;z-index:1;border-radius:inherit;pointer-events:none;
   background:radial-gradient(380px circle at var(--mx,18%) var(--my,-10%),rgba(255,255,255,.11),rgba(255,255,255,.025) 42%,transparent 66%);
