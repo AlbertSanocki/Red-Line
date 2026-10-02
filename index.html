@@ -537,17 +537,22 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 @media (max-width:760px){.f-grid{grid-template-columns:1fr 1fr}.f-brand{grid-column:1 / -1}}
 
 /* ---------- Dolny pasek (mobile) ---------- */
-.tabbar{position:fixed;z-index:60;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;grid-template-columns:1fr 1fr;gap:6px;width:min(440px,calc(100% - 32px));padding:6px;border-radius:999px;--g-tint:rgba(16,16,20,.62)}
+.tabbar{position:fixed;z-index:60;left:50%;bottom:calc(12px + env(safe-area-inset-bottom));transform:translateX(-50%);display:none;grid-template-columns:1fr 1fr;gap:6px;width:min(440px,calc(100% - 32px));padding:6px;border-radius:999px;--g-tint:rgba(16,16,20,.62);
+  transition:transform .55s var(--spring),opacity .3s var(--ease)}
+/* pasek chowa się, gdy na ekranie są przyciski „Umów wizytę” / „Zadzwoń” z treści strony (klasę ustawia JS) */
+.tabbar.is-away{transform:translateX(-50%) translateY(calc(100% + 24px));opacity:0;visibility:hidden;transition:transform .35s var(--ease),opacity .25s var(--ease),visibility 0s .35s}
 .tabbar .btn{--h:52px;padding:0 12px}
 @media (max-width:899px){
   .tabbar{display:grid}
   body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
   /* fokus z klawiatury nie chowa się pod paskiem */
   html{scroll-padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+  /* bez paska przycisk czatu zjeżdża niżej */
+  .tabbar-away{--chat-bottom:calc(16px + env(safe-area-inset-bottom))}
 }
 
 /* ---------- Widget czatu (placeholder) ---------- */
-.chat-fab{position:fixed;z-index:61;right:var(--chat-right);bottom:var(--chat-bottom);display:grid;place-items:center;width:56px;height:56px;padding:0;border:0;border-radius:50%;color:#fff;cursor:pointer;transition:transform .35s var(--spring)}
+.chat-fab{position:fixed;z-index:61;right:var(--chat-right);bottom:var(--chat-bottom);display:grid;place-items:center;width:56px;height:56px;padding:0;border:0;border-radius:50%;color:#fff;cursor:pointer;transition:transform .35s var(--spring),bottom .45s var(--ease)}
 .chat-fab:hover{transform:scale(1.06)}
 .chat-fab:active{transform:scale(.94)}
 .chat-fab .ico{width:24px;height:24px}
@@ -1506,6 +1511,32 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   } else {
     items.forEach(function (el) { el.classList.add('in'); });
   }
+
+  /* Dolny pasek (mobile) chowa się, gdy na ekranie widać przyciski „Umów wizytę” / „Zadzwoń” z treści strony
+     (hero, sekcja Kontakt) – nie dublujemy ich */
+  var tabbar = d.querySelector('.tabbar'), fab = d.getElementById('chat-launcher'), navBar = d.querySelector('.nav');
+  var ctaRows = d.querySelectorAll('.cta-row, .contact-ctas'), tabTicking = false;
+  function setTabbar() {
+    var top = navBar.getBoundingClientRect().bottom, away = false;
+    ctaRows.forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.bottom > top && r.top < window.innerHeight) away = true;
+    });
+    tabbar.classList.toggle('is-away', away);
+    root.classList.toggle('tabbar-away', away);
+    tabTicking = false;
+  }
+  function onTabScroll() {
+    if (tabTicking) return; tabTicking = true;
+    requestAnimationFrame(setTabbar);
+  }
+  /* stan początkowy bez animacji */
+  tabbar.style.transition = fab.style.transition = 'none';
+  setTabbar();
+  void tabbar.offsetWidth;
+  tabbar.style.transition = fab.style.transition = '';
+  window.addEventListener('scroll', onTabScroll, { passive: true });
+  window.addEventListener('resize', onTabScroll);
 
   /* Zgoda na cookies: elementy usług zewnętrznych (data-consent="id", adres w data-src) ładują się
      dopiero po zgodzie. Usługi to widoczne wiersze .cc-svc[data-service]; wybór trzymamy w localStorage. */
