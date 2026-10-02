@@ -225,6 +225,13 @@ ul{padding:0;list-style:none}
 .nav-menu[aria-expanded="true"] .burger span:last-child{rotate:-45deg}
 .menu-sheet{position:fixed;z-index:49;top:calc(var(--nav-top) + var(--nav-h) + 8px);left:0;right:0;margin:0 auto;width:calc(100% - 32px);max-width:520px;padding:8px;border-radius:26px;--g-tint:rgba(16,16,20,.74)}
 .menu-sheet[hidden]{display:none}
+/* otwieranie: arkusz wyrasta z przycisku menu (punkt --origin liczy JS) ze sprężyną, a pozycje wjeżdżają po kolei;
+   zamykanie jest krótsze i bez sprężyny. Klasę is-open ustawia JS. */
+.menu-sheet{opacity:0;transform:translateY(-12px) scale(.88);transform-origin:var(--origin,calc(100% - 28px) -28px);pointer-events:none;
+  transition:opacity .2s var(--ease),transform .25s var(--ease)}
+.menu-sheet.is-open{opacity:1;transform:none;pointer-events:auto;transition:opacity .25s var(--ease),transform .6s var(--spring)}
+.menu-sheet a{opacity:0;transform:translateY(-10px);transition:opacity .15s var(--ease),transform .2s var(--ease)}
+.menu-sheet.is-open a{opacity:1;transform:none;transition:opacity .35s var(--ease) calc(80ms + var(--i,0) * 45ms),transform .6s var(--spring) calc(80ms + var(--i,0) * 45ms)}
 .menu-sheet a{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-radius:18px;font-size:19px;font-weight:600;letter-spacing:-.01em;text-decoration:none}
 .menu-sheet a:hover{background:rgba(255,255,255,.07)}
 .menu-sheet .ico{color:var(--text-3)}
@@ -803,11 +810,11 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
     </button>
   </nav>
   <div class="menu-sheet glass" id="mobile-menu" hidden>
-    <a href="#pakiety">Pakiety <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
-    <a href="#cennik">Cennik <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
-    <a href="#realizacje">Realizacje <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
-    <a href="#opinie">Opinie <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
-    <a href="#kontakt">Kontakt <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
+    <a href="#pakiety" style="--i:0">Pakiety <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
+    <a href="#cennik" style="--i:1">Cennik <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
+    <a href="#realizacje" style="--i:2">Realizacje <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
+    <a href="#opinie" style="--i:3">Opinie <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
+    <a href="#kontakt" style="--i:4">Kontakt <svg class="ico" aria-hidden="true"><use href="#i-right"/></svg></a>
   </div>
 </header>
 
@@ -1388,16 +1395,28 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   }
   window.addEventListener('scroll', onScroll, { passive: true }); onScroll();
 
-  /* Menu mobilne */
-  var menuBtn = d.querySelector('.nav-menu'), sheet = d.getElementById('mobile-menu');
+  /* Menu mobilne: arkusz wyrasta z przycisku menu, a przy zamykaniu chowamy go dopiero po animacji */
+  var menuBtn = d.querySelector('.nav-menu'), sheet = d.getElementById('mobile-menu'), menuTimer = 0;
   function setMenu(open) {
-    sheet.hidden = !open;
+    clearTimeout(menuTimer);
     menuBtn.setAttribute('aria-expanded', String(open));
     menuBtn.setAttribute('aria-label', open ? 'Zamknij menu' : 'Otwórz menu');
+    if (!open) {
+      sheet.classList.remove('is-open');
+      menuTimer = setTimeout(function () { sheet.hidden = true; }, reduce ? 0 : 250);
+      return;
+    }
+    sheet.hidden = false;
+    /* środek przycisku względem arkusza (wyśrodkowanego, bez transformacji) */
+    var b = menuBtn.getBoundingClientRect();
+    var x = b.left + b.width / 2 - (root.clientWidth - sheet.offsetWidth) / 2, y = b.top + b.height / 2 - parseFloat(getComputedStyle(sheet).top);
+    sheet.style.setProperty('--origin', x + 'px ' + y + 'px');
+    void sheet.offsetWidth;
+    sheet.classList.add('is-open');
   }
-  menuBtn.addEventListener('click', function () { setMenu(sheet.hidden); });
+  menuBtn.addEventListener('click', function () { setMenu(!sheet.classList.contains('is-open')); });
   sheet.addEventListener('click', function (e) { if (e.target.closest('a')) setMenu(false); });
-  d.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !sheet.hidden) { setMenu(false); menuBtn.focus(); } });
+  d.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheet.classList.contains('is-open')) { setMenu(false); menuBtn.focus(); } });
 
   /* Przełącznik rozmiaru auta: aktualizuje wszystkie ceny .pz (data-p="hatchback|sedan-kombi|suv") */
   var IDX = { h: 0, s: 1, u: 2 }, NAMES = { h: 'Hatchback', s: 'Sedan / Kombi', u: 'SUV' };
