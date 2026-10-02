@@ -542,6 +542,8 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 @media (max-width:899px){
   .tabbar{display:grid}
   body{padding-bottom:calc(88px + env(safe-area-inset-bottom))}
+  /* fokus z klawiatury nie chowa się pod paskiem */
+  html{scroll-padding-bottom:calc(88px + env(safe-area-inset-bottom))}
 }
 
 /* ---------- Widget czatu (placeholder) ---------- */
@@ -575,11 +577,12 @@ h2{font-size:clamp(34px,4.8vw,58px);line-height:1.03;letter-spacing:-.035em}
 /* panel ustawień: natywny <dialog> (pułapka fokusu, Esc, tło nieaktywne); przewija się tylko lista usług */
 dialog.cc-modal{position:fixed;inset:0;margin:auto;width:min(620px,calc(100% - 32px));max-width:none;height:fit-content;max-height:min(760px,calc(100% - 32px));padding:0;border:0;color:var(--text);overflow:hidden}
 dialog.cc-modal[open]{display:flex;flex-direction:column}
+dialog.cc-modal:not([open]){display:none}
 .cc-modal::backdrop{background:rgba(5,5,7,.62);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 .cc-head,.cc-body,.cc-foot{position:relative;z-index:2}
 .cc-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 20px 12px 26px}
 .cc-head .icon-btn{width:44px;height:44px;flex:none}
-.cc-body{min-height:0;overflow:auto;overscroll-behavior:contain;padding:0 26px 18px}
+.cc-body{min-height:0;overflow:auto;overscroll-behavior:contain;scroll-padding-block:8px;padding:0 26px 18px}
 .cc-body:focus-visible{outline-offset:-3px}
 .cc-modal .cc-foot{margin:0;padding:16px 26px 22px;border-top:1px solid var(--hair)}
 .cc-lead{font-size:15px;line-height:1.5;color:var(--text-2)}
@@ -612,18 +615,35 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   .cc{padding:18px 16px 14px}
   .cc h2{font-size:17px}
   .cc p{margin-top:6px;font-size:14px}
-  .cc .cc-actions{margin-top:14px}
-  .cc .cc-actions .btn{flex:1 1 auto;padding:0 14px}
+  .cc .cc-actions{margin-top:14px;gap:6px}
+  .cc .cc-actions .btn{flex:1 1 auto;padding:0 10px;font-size:14px}
   .cc-head{padding:16px 14px 10px 18px}
   .cc-body{padding:0 18px 14px}
   .cc-modal .cc-foot{padding:14px 18px 18px}
   .map .map-ph{padding:18px 18px 84px}
 }
-/* niskie okna (telefon poziomo, duże powiększenie): okienko na początku strony, w zwykłym układzie */
-@media (max-height:480px){
+@media (max-width:400px){
+  .map-off{top:62px}
+}
+/* wąski komputer: węższe okienko, żeby nie zasłaniało „Zadzwoń” w hero */
+@media (min-width:900px) and (max-width:999px){
+  .cc{width:min(460px,calc(100% - 48px))}
+}
+/* niskie okna (telefon poziomo, małe telefony, duże powiększenie): okienko na początku strony, w zwykłym układzie */
+@media (max-height:480px),(max-width:420px) and (max-height:620px){
   .cc{position:relative;z-index:auto;left:auto;right:auto;bottom:auto;width:auto;max-height:none;overflow:visible;margin:calc(var(--nav-top) + var(--nav-h) + 12px) 16px 0;transform:none}
 }
+@media (max-height:480px) and (min-width:900px){
+  .cc{width:min(1080px,calc(100% - 32px));margin-inline:auto}
+}
+/* niskie okna: przewija się cały panel ustawień, a nie tylko lista usług */
+@media (max-height:480px){
+  dialog.cc-modal{overflow:auto;overscroll-behavior:contain}
+  dialog.cc-modal[open]{display:block}
+  .cc-body{overflow:visible}
+}
 @media (forced-colors:active){
+  .cc,dialog.cc-modal{outline:1px solid CanvasText}
   .cc-switch{border:2px solid ButtonText}
   .cc-switch::before{top:2px;left:2px;background:ButtonText}
   .cc-switch:checked{background:Highlight}
@@ -654,7 +674,7 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
      w skrypcie na dole strony – wszyscy zostaną zapytani ponownie. -->
 <section class="cc glass" id="cc-banner" aria-labelledby="cc-title" aria-describedby="cc-desc" hidden>
   <h2 id="cc-title">Pliki cookies</h2>
-  <p id="cc-desc">Ta strona korzysta z plików cookies. Używają ich usługi zewnętrzne (<span data-cc-names>mapa Google</span>), które włączamy dopiero po Twojej zgodzie. Ich dostawcy otrzymują wtedy m.in. Twój adres IP i mogą używać cookies także we własnych celach, np. reklamowych. Zgodę możesz w każdej chwili wycofać w „Ustawieniach cookies” na dole strony. <a href="polityka-prywatnosci.html">Polityka prywatności</a></p>
+  <p id="cc-desc"><span data-cc-kept hidden>Pytamy tylko o usługi, które wymagają Twojej decyzji – wcześniejsze wybory pozostają bez zmian. </span>Ta strona korzysta z plików cookies. Używają ich usługi zewnętrzne (<span data-cc-names>mapa Google</span>), które włączamy dopiero po Twojej zgodzie. Dostawcy tych usług otrzymują wtedy m.in. Twój adres IP i mogą używać cookies także we własnych celach, np. reklamowych. Zgodę możesz w każdej chwili wycofać w „Ustawieniach cookies” na dole strony. Szczegóły: <a href="polityka-prywatnosci.html">Polityka prywatności</a>.</p>
   <div class="cc-actions">
     <button class="btn btn-glass btn-sm" type="button" data-cc="reject">Odrzucam</button>
     <button class="btn btn-glass btn-sm" type="button" data-cc="accept">Akceptuję</button>
@@ -668,19 +688,14 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
     <button class="icon-btn btn-glass" type="button" data-cc="close" aria-label="Zamknij"><svg class="ico" aria-hidden="true"><use href="#i-x"/></svg></button>
   </div>
   <div class="cc-body">
-    <!-- Po włączeniu rezerwacji lub czatu dopisz tu, co działa bez zgody (np. „rezerwacja otworzy się w nowej karcie, a czat pozostanie wyłączony”). -->
+    <!-- Po włączeniu rezerwacji i czatu zamień wstęp na: „Wybierz, które usługi zewnętrzne możemy włączać. Bez zgody
+         reszta strony działa normalnie: mapę włączysz później przyciskiem w jej miejscu, rezerwacja otworzy się
+         w nowej karcie, a czat pozostanie wyłączony. Szczegóły: Polityka prywatności.” (z tym samym linkiem). -->
     <p class="cc-lead" id="cc-set-lead">Wybierz, które usługi zewnętrzne możemy włączać. Bez zgody reszta strony działa normalnie, a mapę włączysz też później przyciskiem w jej miejscu. Szczegóły: <a href="polityka-prywatnosci.html">Polityka prywatności</a>.</p>
-    <div class="cc-svc">
-      <div>
-        <h3 id="cc-n-base">Niezbędne</h3>
-        <p id="cc-d-base">Zapisujemy Twój wybór w pamięci przeglądarki (localStorage) na 12 miesięcy, żeby nie pytać ponownie. Bez plików cookies; ten zapis nie trafia na nasz serwer.</p>
-      </div>
-      <input class="cc-switch" type="checkbox" role="switch" checked disabled aria-labelledby="cc-n-base" aria-describedby="cc-d-base">
-    </div>
     <div class="cc-svc" data-service="mapa" data-label="mapa Google">
       <div>
         <h3 id="cc-n-mapa">Mapa Google</h3>
-        <p id="cc-d-mapa">Mapa dojazdu w sekcji Kontakt. Dostawca: Google Ireland Limited. Po włączeniu Google otrzymuje m.in. Twój adres IP i adres naszej strony, może odczytywać zapisane w przeglądarce pliki cookies Google (np. NID, ważny do 6 miesięcy od ostatniego użycia) i zapisywać nowe. Google może je wykorzystywać także we własnych celach, m.in. do zapamiętywania ustawień, statystyk i reklam. <a href="https://policies.google.com/privacy?hl=pl" target="_blank" rel="noopener">Polityka prywatności Google</a> · <a href="https://policies.google.com/technologies/partner-sites?hl=pl" target="_blank" rel="noopener">Jak Google wykorzystuje dane z witryn</a></p>
+        <p id="cc-d-mapa">Mapa dojazdu w sekcji Kontakt. Dostawca: Google Ireland Limited. Po włączeniu Google otrzymuje m.in. Twój adres IP i adres naszej strony, może odczytywać zapisane w przeglądarce pliki cookies Google (np. NID, ważny do 6 miesięcy od ostatniego użycia) i zapisywać nowe. Google może wykorzystywać te informacje także we własnych celach, m.in. do zapamiętywania ustawień, prowadzenia statystyk i wyświetlania reklam. <a href="https://policies.google.com/privacy?hl=pl" target="_blank" rel="noopener">Polityka prywatności Google</a> · <a href="https://policies.google.com/technologies/cookies?hl=pl" target="_blank" rel="noopener">Pliki cookies Google</a> · <a href="https://policies.google.com/technologies/partner-sites?hl=pl" target="_blank" rel="noopener">Jak Google wykorzystuje dane z witryn</a></p>
       </div>
       <input class="cc-switch" type="checkbox" role="switch" data-consent-toggle="mapa" aria-labelledby="cc-n-mapa" aria-describedby="cc-d-mapa">
     </div>
@@ -688,7 +703,7 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
     <div class="cc-svc" data-service="rezerwacje" data-label="system rezerwacji" hidden>
       <div>
         <h3 id="cc-n-rez">System rezerwacji</h3>
-        <p id="cc-d-rez">Rezerwacja wizyty w okienku na tej stronie. Dostawca: <span class="todo">[pełna nazwa firmy]</span>. Po włączeniu dostawca otrzymuje m.in. Twój adres IP i może zapisywać oraz odczytywać pliki cookies (<span class="todo">[nazwy, okres ważności]</span>) w celu <span class="todo">[cele z polityki dostawcy, np. obsługi rezerwacji i statystyk]</span>. Bez zgody przyciski rezerwacji (np. „Umów wizytę”) otwierają rezerwację w nowej karcie, na stronie <span class="todo">[nazwa serwisu]</span>. <a class="todo" href="#">[Polityka prywatności dostawcy]</a></p>
+        <p id="cc-d-rez">Rezerwacja wizyty w okienku na tej stronie. Dostawca: <span class="todo">[pełna nazwa firmy]</span>. Po włączeniu dostawca otrzymuje m.in. Twój adres IP i może zapisywać oraz odczytywać pliki cookies (<span class="todo">[nazwy, okres ważności]</span>) w celu <span class="todo">[cele z polityki dostawcy, np. obsługi rezerwacji i prowadzenia statystyk]</span>. <span class="todo">[jeśli dotyczy: Dostawca może wykorzystywać te informacje także we własnych celach, m.in. …]</span> Bez zgody przyciski rezerwacji (np. „Umów wizytę”) otwierają rezerwację w nowej karcie, na stronie <span class="todo">[nazwa serwisu]</span>. Wyłączenie przeładuje stronę. <a class="todo" href="#">[Polityka prywatności dostawcy]</a></p>
       </div>
       <input class="cc-switch" type="checkbox" role="switch" data-consent-toggle="rezerwacje" aria-labelledby="cc-n-rez" aria-describedby="cc-d-rez">
     </div>
@@ -696,9 +711,16 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
     <div class="cc-svc" data-service="czat" data-label="czat" hidden>
       <div>
         <h3 id="cc-n-czat">Czat</h3>
-        <p id="cc-d-czat">Rozmowa z nami w okienku czatu. Dostawca: <span class="todo">[pełna nazwa firmy]</span>. Po włączeniu dostawca otrzymuje m.in. Twój adres IP i może zapisywać oraz odczytywać pliki cookies (<span class="todo">[nazwy, okres ważności]</span>) w celu <span class="todo">[cele]</span>. Bez zgody czat jest wyłączony – zadzwoń: +48 889 975 988. <a class="todo" href="#">[Polityka prywatności dostawcy]</a></p>
+        <p id="cc-d-czat">Rozmowa z nami w okienku czatu. Dostawca: <span class="todo">[pełna nazwa firmy]</span>. Po włączeniu dostawca otrzymuje m.in. Twój adres IP i może zapisywać oraz odczytywać pliki cookies (<span class="todo">[nazwy, okres ważności]</span>) w celu <span class="todo">[cele z polityki dostawcy]</span>. <span class="todo">[jeśli dotyczy: Dostawca może wykorzystywać te informacje także we własnych celach, m.in. …]</span> Bez zgody czat jest wyłączony – zadzwoń: +48 889 975 988. Wyłączenie przeładuje stronę. <a class="todo" href="#">[Polityka prywatności dostawcy]</a></p>
       </div>
       <input class="cc-switch" type="checkbox" role="switch" data-consent-toggle="czat" aria-labelledby="cc-n-czat" aria-describedby="cc-d-czat">
+    </div>
+    <div class="cc-svc">
+      <div>
+        <h3 id="cc-n-base">Niezbędne</h3>
+        <p id="cc-d-base">Zapisujemy Twój wybór w pamięci przeglądarki (localStorage) na 12 miesięcy, żeby nie pytać Cię przy każdej wizycie. Nie używamy do tego plików cookies, a zapis nie trafia na nasz serwer.</p>
+      </div>
+      <input class="cc-switch" type="checkbox" role="switch" checked disabled aria-labelledby="cc-n-base" aria-describedby="cc-d-base">
     </div>
   </div>
   <div class="cc-actions cc-foot">
@@ -1236,12 +1258,12 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
         <div class="ph map-ph" data-consent-ph="mapa">
           <svg class="ico" aria-hidden="true"><use href="#i-pin"/></svg>
           <p class="map-ph-title">Mapa Google</p>
-          <p class="map-ph-js">Po kliknięciu Google otrzyma Twój adres IP i może używać plików cookies, także do reklam. Zgodę zapamiętamy na 12 miesięcy; możesz ją wycofać w każdej chwili.</p>
+          <p class="map-ph-js" id="map-ph-note">Po kliknięciu „Pokaż mapę” Google otrzyma Twój adres IP i może używać plików cookies, także do reklam. Zgodę zapamiętamy na 12 miesięcy; wycofasz ją w każdej chwili przyciskiem „Wyłącz mapę”.</p>
           <div class="map-ph-actions map-ph-js">
-            <button class="btn btn-glass btn-sm" type="button" data-consent-grant="mapa">Pokaż mapę</button>
-            <button class="btn btn-sm cc-more" type="button" data-cc="settings">Szczegóły</button>
+            <button class="btn btn-glass btn-sm" type="button" data-consent-grant="mapa" aria-describedby="map-ph-note">Pokaż mapę</button>
+            <button class="btn btn-sm cc-more" type="button" data-cc="settings" data-cc-focus="mapa">Szczegóły</button>
           </div>
-          <noscript><p>Mapa wymaga włączonego JavaScriptu. Dojazd wyznaczysz przyciskiem „Wyznacz trasę”.</p></noscript>
+          <noscript><p>Mapa wymaga włączonego JavaScriptu. Dojazd sprawdzisz w Mapach Google przyciskiem „Wyznacz trasę”.</p></noscript>
         </div>
         <button class="btn btn-glass glass btn-sm map-off" type="button" data-consent="mapa" data-consent-revoke="mapa" hidden>Wyłącz mapę</button>
         <a class="btn btn-glass glass map-cta" href="https://www.google.com/maps/dir/?api=1&amp;destination=ul.%20Aleksandra%20Fredry%2036%2C%2030-605%20Krak%C3%B3w" target="_blank" rel="noopener"><svg class="ico" aria-hidden="true"><use href="#i-route"/></svg>Wyznacz trasę</a>
@@ -1303,15 +1325,20 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
         jego tagu <script> zamień src na data-src i dodaj type="text/plain" data-consent="rezerwacje", np.:
         <script type="text/plain" data-consent="rezerwacje" data-src="https://dostawca-rezerwacji.example/widget.js"></script>
         <script type="text/plain" data-consent="rezerwacje">/* kod startowy dostawcy */</script>
-        Kolejność zostaje zachowana: kod startowy uruchomi się po wczytaniu biblioteki. Iframe dostawcy
-        przerób tak samo (data-src, data-consent) i dodaj mu atrybut hidden.
+        Kolejność zostaje zachowana: kod startowy uruchomi się po wczytaniu biblioteki. Jeśli tag miał
+        type="module", wpisz zamiast tego data-type="module". Iframe dostawcy przerób tak samo
+        (data-src, data-consent) i dodaj mu atrybut hidden.
         Nie wklejaj kodu, który używa document.write: po kliknięciu zgody wyczyściłby całą stronę
         (poproś dostawcę o wersję asynchroniczną albo iframe).
      2. W panelu „Ustawienia cookies” (początek <body>) usuń „hidden” z wiersza data-service="rezerwacje"
         i uzupełnij pola w nawiasach: pełną nazwę firmy, cele, nazwy i okres ważności cookies
-        (z listy cookies dostawcy) oraz link do jego polityki prywatności.
-     3. Dopisz we wstępie panelu, co działa bez zgody, a usługę dodaj do polityki prywatności.
+        (z listy cookies dostawcy) oraz link do jego polityki prywatności. W data-label dopisz nazwę
+        dostawcy, np. data-label="system rezerwacji Booksy" – ta nazwa pojawi się w okienku cookies.
+     3. Zamień wstęp panelu na tekst z komentarza nad nim, a usługę dodaj do polityki prywatności.
      4. Sprawdź w przeglądarce (DevTools → Network), że przed zgodą nic od dostawcy się nie ładuje.
+        Po zgodzie sprawdź (Network oraz Application → Cookies), z jakimi domenami łączy się widget
+        i jakie cookies zapisuje; jeśli są wśród nich inne firmy (np. Google Analytics, Meta),
+        wymień je w opisie usługi i w polityce prywatności.
      Bez zgody przyciski „Umów wizytę” zostają zwykłymi linkami, więc rezerwacja działa zawsze.
      ===================================================================== -->
 
@@ -1488,17 +1515,28 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   var ccServices = Array.prototype.slice.call(d.querySelectorAll('.cc-svc[data-service]'))
     .filter(function (el) { return !el.hidden; })
     .map(function (el) { return el.getAttribute('data-service'); });
-  var ccLoaded = {}, ccScripted = {}, ccChoice = {}, ccChatPending = false;
+  var ccLoaded = {}, ccScripted = {}, ccChoice = {}, ccDates = {}, ccChatPending = false;
+  /* każda decyzja ma własną datę i wygasa 12 miesięcy po jej podjęciu (starsze zapisy mają jedną wspólną datę t) */
   try {
-    var ccRec = JSON.parse(localStorage.getItem(CC_KEY)), ccAge = ccRec && Date.now() - ccRec.t;
-    if (ccRec && ccRec.v === CC_VERSION && typeof ccRec.s === 'object' && ccRec.s && ccAge >= 0 && ccAge < CC_MAX_AGE) ccChoice = ccRec.s;
+    var ccRec = JSON.parse(localStorage.getItem(CC_KEY)), ccNow = Date.now();
+    if (ccRec && ccRec.v === CC_VERSION && ccRec.s && typeof ccRec.s === 'object') {
+      Object.keys(ccRec.s).forEach(function (id) {
+        var t = (ccRec.d && ccRec.d[id]) || ccRec.t, age = ccNow - t;
+        if (age >= 0 && age < CC_MAX_AGE) { ccChoice[id] = ccRec.s[id]; ccDates[id] = t; }
+      });
+    }
   } catch (e) {}
   function ccUndecided() {
     return ccServices.filter(function (id) { return !(id in ccChoice); });
   }
   function ccWrite(s) {
+    var now = Date.now(), dates = {};
+    Object.keys(s).forEach(function (id) { dates[id] = id in ccChoice && ccChoice[id] === s[id] && ccDates[id] ? ccDates[id] : now; });
     ccChoice = s;
-    try { localStorage.setItem(CC_KEY, JSON.stringify({ v: CC_VERSION, t: Date.now(), s: s })); } catch (e) {}
+    ccDates = dates;
+    /* gdy zapis się nie uda, usuwamy stary: lepiej zapytać ponownie, niż użyć wycofanej zgody */
+    try { localStorage.setItem(CC_KEY, JSON.stringify({ v: CC_VERSION, d: dates, s: s })); }
+    catch (e) { try { localStorage.removeItem(CC_KEY); } catch (e2) {} }
   }
   /* elementy usługi wczytujemy po kolei: skrypt z src (bez async) wstrzymuje następne, jak przy zwykłym
      wczytywaniu strony; done() rusza, gdy wczytają się wszystkie skrypty usługi */
@@ -1517,10 +1555,13 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
         el.hidden = false;
         return next();
       }
-      var s = d.createElement('script'), wait = !!src && !el.hasAttribute('async');
+      var s = d.createElement('script'), wait = !!src && !el.hasAttribute('async'), type = el.getAttribute('data-type');
+      /* nomodule pomijamy tam, gdzie przeglądarka obsługuje moduły (i tak by go nie uruchomiła) */
+      if (el.hasAttribute('nomodule') && 'noModule' in s) return next();
       Array.prototype.forEach.call(el.attributes, function (a) {
-        if (!/^(type|data-src|data-consent)$/.test(a.name)) s.setAttribute(a.name, a.value);
+        if (!/^(type|data-type|data-src|data-consent)$/.test(a.name)) s.setAttribute(a.name, a.value);
       });
+      if (type) s.type = type;
       if (el.nonce) s.nonce = el.nonce;
       if (src) {
         left++;
@@ -1542,7 +1583,13 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
     if (!ccLoaded[id]) return;
     ccLoaded[id] = false;
     d.querySelectorAll('[data-consent="' + id + '"]').forEach(function (el) {
-      if (el.hasAttribute('data-src')) el.removeAttribute('src');
+      /* iframe podmieniamy na kopię bez src: samo usunięcie src nie zatrzymuje wczytanej strony w Firefoksie */
+      if (el.tagName === 'IFRAME') {
+        var c = el.cloneNode(false);
+        c.removeAttribute('src');
+        el.parentNode.replaceChild(c, el);
+        el = c;
+      } else if (el.hasAttribute('data-src')) el.removeAttribute('src');
       el.hidden = true;
     });
     d.querySelectorAll('[data-consent-ph="' + id + '"]').forEach(function (el) { el.hidden = false; });
@@ -1552,7 +1599,7 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
       if (!ccChoice[id]) return ccUnload(id);
       ccLoad(id, openChat && id === 'czat' ? function () { window.dispatchEvent(new CustomEvent('redline:chat-open')); } : null);
     });
-    window.dispatchEvent(new CustomEvent('redline:consent', { detail: ccChoice }));
+    window.dispatchEvent(new CustomEvent('redline:consent', { detail: JSON.parse(JSON.stringify(ccChoice)) }));
   }
   /* póki okienko pływa nad stroną, rezerwujemy pod nim miejsce: fokus i przewijanie go omijają */
   function ccLayout() {
@@ -1566,6 +1613,9 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
       return d.querySelector('.cc-svc[data-service="' + id + '"]').getAttribute('data-label');
     }).join(', ');
     d.querySelectorAll('[data-cc-names]').forEach(function (el) { el.textContent = names; });
+    /* przy ponownym pytaniu (nowa albo wygasła usługa) zaznaczamy, że wcześniejsze wybory zostają */
+    var kept = ccServices.some(function (id) { return id in ccChoice; });
+    d.querySelectorAll('[data-cc-kept]').forEach(function (el) { el.hidden = !kept; });
     if (!ccBanner.hidden) return;
     ccBanner.hidden = false;
     void ccBanner.offsetWidth;
@@ -1591,14 +1641,19 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   }
   function ccSave(s) {
     var reload = ccServices.some(function (id) { return !s[id] && ccLoaded[id] && ccScripted[id]; });
-    var openChat = ccChatPending && s.czat;
+    /* czat otwieramy tylko po zgodzie wydanej w panelu, który otworzył przycisk czatu */
+    var openChat = ccChatPending && ccDialog.open && s.czat;
     ccChatPending = false;
     ccWrite(s);
     if (ccDialog.open) ccDialog.close();
     /* element z fokusem trzeba zapamiętać, zanim przeglądarka zdejmie fokus z ukrywanych przycisków */
     var a = d.activeElement;
     if (ccUndecided().length) ccShow(); else ccHide();
-    if (reload) return location.reload();
+    if (reload) {
+      /* po przeładowaniu fokus wróci na „Ustawienia cookies” w stopce */
+      try { sessionStorage.setItem('redline-cc-focus', '1'); } catch (e) {}
+      return location.reload();
+    }
     ccApply(openChat);
     ccRefocus(a);
   }
@@ -1611,10 +1666,14 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   function ccOpen(focusId) {
     ccChatPending = focusId === 'czat';
     d.querySelectorAll('[data-consent-toggle]').forEach(function (t) { t.checked = !!ccChoice[t.getAttribute('data-consent-toggle')]; });
-    ccDialog.querySelector('.cc-body').scrollTop = 0;
     ccDialog.showModal();
+    /* przewinięcie da się ustawić dopiero, gdy panel jest widoczny; na niskich ekranach przewija się cały panel */
+    var body = ccDialog.querySelector('.cc-body'), sc = getComputedStyle(body).overflowY === 'visible' ? ccDialog : body;
+    ccDialog.scrollTop = body.scrollTop = 0;
     var t = focusId && ccDialog.querySelector('[data-consent-toggle="' + focusId + '"]');
-    if (t) t.focus();
+    if (!t) return;
+    sc.scrollTop = t.closest('.cc-svc').getBoundingClientRect().top - sc.getBoundingClientRect().top - 8;
+    t.focus({ preventScroll: true });
   }
   d.addEventListener('click', function (e) {
     var b = e.target.closest('[data-cc],[data-consent-grant],[data-consent-revoke]');
@@ -1629,7 +1688,7 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
       });
       ccSave(s);
     }
-    else if (act === 'settings') ccOpen();
+    else if (act === 'settings') ccOpen(b.getAttribute('data-cc-focus'));
     else if (act === 'close') ccDialog.close();
     else {
       /* „Pokaż mapę” / „Wyłącz mapę”: zgoda na jedną usługę albo jej wycofanie, wprost przy niej */
@@ -1639,10 +1698,11 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
       ccSave(s);
     }
   });
-  /* kliknięcie w tło zamyka panel bez zapisu (ale nie przeciągnięcie zaczęte w środku panelu) */
-  var ccDown = null;
+  /* kliknięcie w tło zamyka panel bez zapisu (ale nie przeciągnięcie, które zaczęło się albo skończyło w panelu) */
+  var ccDown = null, ccUp = null;
   ccDialog.addEventListener('pointerdown', function (e) { ccDown = e.target; });
-  ccDialog.addEventListener('click', function (e) { if (e.target === ccDialog && ccDown === ccDialog) ccDialog.close(); });
+  ccDialog.addEventListener('pointerup', function (e) { ccUp = e.target; });
+  ccDialog.addEventListener('click', function (e) { if (e.target === ccDialog && ccDown === ccDialog && ccUp === ccDialog) ccDialog.close(); });
   /* Esc zamyka sam panel, a nie także otwarte pod nim menu */
   ccDialog.addEventListener('keydown', function (e) { if (e.key === 'Escape') e.stopPropagation(); });
   window.addEventListener('resize', ccLayout);
@@ -1650,6 +1710,12 @@ html:not(.js) .map-ph-js,html:not(.js) .f-legal [data-cc]{display:none}
   if (ccUndecided().length) ccShow();
   /* tagi usług wklejone niżej w kodzie (np. na samym końcu strony) muszą już istnieć */
   if (d.readyState === 'loading') d.addEventListener('DOMContentLoaded', function () { ccApply(); }); else ccApply();
+  try {
+    if (sessionStorage.getItem('redline-cc-focus')) {
+      sessionStorage.removeItem('redline-cc-focus');
+      d.querySelector('.f-legal [data-cc="settings"]').focus();
+    }
+  } catch (e) {}
 
   /* Placeholder czatu: widget CRM może nasłuchiwać na 'redline:chat-open'.
      Gdy czat jest na liście usług, a nie ma na niego zgody, otwieramy ustawienia cookies przy przełączniku czatu. */
